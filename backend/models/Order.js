@@ -50,6 +50,6 @@ const orderSchema = new mongoose.Schema({
         enum: ['Cash on Delivery', 'GCash'],
         default: 'Cash on Delivery',
     },
-}, { timestamps: true });z
+}, { timestamps: true });
 
 module.exports = mongoose.model('Order', orderSchema);
