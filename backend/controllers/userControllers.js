@@ -11,7 +11,7 @@ const register = async (req, res) => {
             return res.status(400).json({ message: 'Email already registered' });
         }
 
-        const hashPassword = await bcrypt.hash(password, 10);
+        const hashedPassword = await bcrypt.hash(password, 10);
 
         const user = new User({
             name,
@@ -23,7 +23,7 @@ const register = async (req, res) => {
 
         const savedUser = await user.save();
         
-        res.status(201).josn({
+        res.status(201).json({
             message: 'Registration successful',
             user: {
                 _id: savedUser._id,
