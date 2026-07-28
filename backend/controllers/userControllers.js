@@ -29,7 +29,7 @@ const register = async (req, res) => {
                 _id: savedUser._id,
                 name: savedUser.name,
                 email: savedUser.email,
-                roles: savedUser.roles,
+                role: savedUser.role,
             },
         });
     } catch (err) {

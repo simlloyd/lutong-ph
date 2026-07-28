@@ -37,7 +37,7 @@ const createRestaurant = async (req, res) => {
             phone,
             cuisine,
             image,
-            deliveryfee,
+            deliveryFee,
             owner: req.user._id,
         });
 
