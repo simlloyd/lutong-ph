@@ -8,6 +8,8 @@ const {
     deleteRestaurant,
 } = require('../controllers/restaurantController');
 const { protect, restrictTo } = require('../middleware/authMiddleware');
+const menuItemRoutes = require('./menuItemRoutes');
+
 
 router.get('/', getAllRestaurants);
 router.get('/:id', getRestaurantById);
@@ -15,5 +17,6 @@ router.post('/', protect, restrictTo('restaurant_owner', 'admin'), createRestaur
 router.put('/:id', protect, restrictTo('restaurant_owner', 'admin'), updateRestaurant);
 router.delete('/:id', protect, restrictTo('restaurant_owner', 'admin'), deleteRestaurant);
 
+router.use('/:restaurantId/menu', menuItemRoutes);
 
 module.exports = router;
