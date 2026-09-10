@@ -30,7 +30,7 @@ const restaurantSchema = new mongoose.Schema({
         type: Boolean,
         default: true,
     },
-    deliveryfee: {
+    deliveryFee: {
         type: Number,
         default: 0,
     },
