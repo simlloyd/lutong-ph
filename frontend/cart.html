@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cart | LutongPH</title>
+    <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+    <!--NAVBAR -->
+    <nav class="navbar">
+        <a href="index.html" class="nav-logo">🍔 LutongPH</a>
+    <div class="nav-links">
+        <span id="nav-user"></span>
+        <a href="auth.html" id="nav-auth">Login</a>
+        <a href="cart.html" id="nav-cart">🛒 Cart</a>
+        <a href="orders.html" id="nav-orders">My Orders</a>
+        <a href="#" id="nav-logout" onclick="logout()">Logout</a>
+    </div>
+    </nav>
+
+    <!-- CART SECTION -->
+     <section class="section">
+        <h2 class="section-title">Your Cart</h2>
+        <div class="cart-container" id="cart-container">
+            <p class="message">Loading cart...</p>
+        </div>
+     </section>
+
+     <script src="js/api.js"></script>
+     <script src="js/app.js"></script>
+     <script>
+        async function loadCart() {
+            if (!isLoggedIn()) {
+                window.location.href = 'auth.html';
+                return;
+            }
+
+            const cart = await getCart();
+            const container = document.getElementById('cart-container');
+
+            if (!cart.items || cart.items.length === 0) {
+                container.innerHTML = `
+                <p class="message">Your cart is empty.</p>
+                <div style="text-align:center;">
+                    <a href="index.html" class="btn">Brows Restaurants</a>
+                    </div>
+                    `;
+                    return;
+            }
+            const subtotal = cart.items.reduce((sum, item) => {
+                return sum + item.menuItem.price * item.quantity;
+            }, 0);
+
+            const deliveryFee = cart.restaurant?.deliveryFee || 0;
+            const total = subtotal + deliveryFee;
+
+            container.innerHTML = `
+            <div style="background:#fff; padding:16px; border-radius:12px; margin-button:16px; box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+                <p style="font-weight:bold; color:#e63946;">🍽️ ${cart.restaurant?.name || 'Restaurant'}</p>
+                </div>
+
+                ${cart.items.map(item => `
+                <div class="cart-item">
+                    <div class="cart-item-info">
+                        <h3>${item.menuItem.name}</h3>
+                        <p style="color:#666;">₱${item.menuItem.price} x ${item.quantity}</p>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:12px;">
+                            <p style="font-weight:bold; color:#e63946;">₱${item.menuItem.price * item.quantity}</p>
+                            <button class="btn btn-outline" style="padding:6px 14px; font-size:0.85rem;"
+                            onclick="handleRemove('${item.menuItem._id}')">Remove</button>
+                            </div>
+                            </div>
+                            `).join('')}
+                            
+                            <div class="delivery-fee">Delivery fee: ₱${deliveryFee}</div>
+                            <div class="cart-total">Total: ₱${total}</div>
+
+                            <!-- CHECKOUT FORM -->
+                            <div style="background:#fff; padding:24px; border-radius:12px; box-shadow:0 2px 8px rgba(0,0,0,0.06); margin-top:16px;">
+                                <h3 style="margin-bottom:16px;">Delivery Details</h3>
+                                <div class="form-group">
+                                    <label>Delivery Address</label>
+                                    <input type="text" id="delivery-address" placeholder="Enter your delivery address" />
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Payment Method</label>
+                                          <select id="payment-method">
+                                            <option value="Cash on Delivery"> Cash on Delivery</option>
+                                            <option value="GCash">GCash</option>
+                                            </select>
+                                            </div>
+                                            <div style="display:flex; gap:16px; justify-content:flex-end; margin-top:16px;">
+                                                <button class="btn btn-outline" onclick="handleClearCart()">Clear Cart</button>
+                                                <button class="btn" onclick="handleCheckout()">Place Order 🍔</button>
+                                                </div>
+                                                </div>
+                                                `;
+        }
+
+        async function handleRemove(menuItemId) {
+            await removeFromCart(menuItemId);
+            loadCart();
+        }
+
+        async function handleClearCart() {
+            await clearCart();
+            loadCart();
+        }
+
+        async function handleCheckout() {
+            const deliveryAddress = document.getElementById('delivery-address').value;
+            const paymentMethod = document.getElementById('payment-method').value;
+
+            if (!deliveryAddress) {
+                alert('Please enter your delivery address!');
+                return;
+            }
+
+            const data = await placeOrder({ deliveryAddress, paymentMethod });
+
+            if (data.status) {
+                alert(`Order placed successfully! 🎉\nTotal: ₱${data.totalAmount + data.deliveryFee}`);
+                window.location.href = 'orders.html';
+            } else {
+                alert(data.message);
+            }
+        }
+
+        loadCart();
+     </script>
+    
+</body>
+</html>
